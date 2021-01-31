@@ -1,0 +1,2 @@
+helm_templates:
+  hlf-rest-client: hlf-rest-client.tpl
