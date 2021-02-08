@@ -102,8 +102,6 @@
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/ca
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/admin/tls
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/admin/msp
-    vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/user1/tls
-    vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/user1/msp
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/orderer/tls
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/ambassador
     {% for peer in peers %}
@@ -132,6 +130,21 @@
     VAULT_ADDR: "{{ item.vault.url }}"
     VAULT_TOKEN: "{{ item.vault.root_token }}"
   ignore_errors: yes
+
+############################################################################################
+# This task deletes crypto materials from vault
+- name: Delete Crypto for users
+  shell: |
+    {% for user in users %}
+    vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/{{ user.identity }}/tls
+    vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/{{ user.identity }}/msp
+    {% endfor %}
+  vars:
+    users: "{{ item.users }}"
+  environment:
+    VAULT_ADDR: "{{ item.vault.url }}"
+    VAULT_TOKEN: "{{ item.vault.root_token }}"
+  when: component_type == 'peer' and item.users is defined
 
 - name: Delete policy
   shell: |

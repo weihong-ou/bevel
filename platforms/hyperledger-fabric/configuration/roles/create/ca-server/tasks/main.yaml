@@ -82,7 +82,6 @@
     VAULT_TOKEN: "{{ vault.root_token }}"
   when: vault_caadmin_result.failed == True  # run only when vault_caadmin_result failed
 
-
 # Check if Ambassador credentials exist already
 - name: Check Ambassador cred exists
   k8s_info:
@@ -94,6 +93,12 @@
   register: get_secret
   when: 
     - network.env.proxy == 'ambassador'
+
+# Copy custom config for fabric-ca server
+- name: Copy custom config for fabric-ca server
+  shell: |
+    cp {{ ca.configpath }} ../../../{{ gitops.chart_source }}/ca/conf/fabric-ca-server-config-{{ component }}.yaml
+  when: ca.configpath is defined
 
 #####################################################################################################################
 # This task creates the Ambassador TLS credentials

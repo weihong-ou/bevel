@@ -109,7 +109,7 @@
     #Creating a pause so that the client certificates are valid
     # You can continue if the CA-server pods are running for more than 5 minutes
     - pause:
-        prompt: "Sleeping... so that the client certificates are valid"
+        prompt: "{{ ansible_date_time.time }} | Sleeping... so that the client certificates are valid"
         minutes: 6
 
     # Create Organization crypto materials for new organization

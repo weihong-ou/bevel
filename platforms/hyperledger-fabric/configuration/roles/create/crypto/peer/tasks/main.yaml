@@ -341,3 +341,10 @@
     - network.env.proxy == 'none'
   tags:
     - molecule-idempotence-notest
+# Create user crypto
+- name: "Create user crypto"
+  include_role:
+    name: "create/users"
+  vars:
+    users: "{{ item.users }}"
+  when: item.users is defined

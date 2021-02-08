@@ -37,6 +37,12 @@ spec:
       - name: certificates
         emptyDir:
           medium: Memory
+      - name: {{ $.Values.server.name }}-config-volume
+        configMap:
+          name: {{ $.Values.server.name }}-config
+          items:
+            - key: fabric-ca-server-config.yaml
+              path: fabric-ca-server-config.yaml
       {{ if .Values.vault.tls  }}
       - name: vaultca
         secret:
@@ -124,7 +130,6 @@ spec:
           validateVaultResponse "secret (${vault_secret_key})" "${LOOKUP_SECRET_RESPONSE}" "LOOKUPSECRETRESPONSE"
           VALUE_OF_SECRET=$(echo ${LOOKUP_SECRET_RESPONSE} | jq -r ".data[\"${vault_data_key}\"]")
           echo "${VALUE_OF_SECRET}" >> ${MOUNT_PATH}/user_cred
-          
         volumeMounts:
         - name: certificates
           mountPath: /secret
@@ -136,7 +141,14 @@ spec:
       containers:
       - name: ca
         image: {{ $.Values.metadata.images.ca }}
-        command: ["sh", "-c", "sleep 1 && fabric-ca-server start -b {{ $.Values.server.admin }}:`cat /etc/hyperledger/fabric-ca-server-config/user_cred` -d"]
+        command: ["sh", "-c"]
+        args:
+        - |-
+          #!/usr/bin/env sh
+
+          cp /custom-config/fabric-ca-server-config.yaml $FABRIC_CA_HOME/fabric-ca-server-config.yaml;
+
+          fabric-ca-server start --config $FABRIC_CA_HOME/fabric-ca-server-config.yaml -d;
         ports:
         - containerPort: 7054
         env:
@@ -164,3 +176,6 @@ spec:
           readOnly: true
         - name: ca-server-db
           mountPath: /var/hyperledger/fabric-ca-server/db/
+        - name: {{ $.Values.server.name }}-config-volume
+          mountPath: /custom-config/
+          

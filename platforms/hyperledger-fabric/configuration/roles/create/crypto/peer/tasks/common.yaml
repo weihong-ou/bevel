@@ -12,20 +12,6 @@
   when: vault_msp_result.failed or vault_admin_result.failed or vault_user_result.failed
 
 ############################################################################################
-# Copy generate-crypto script from scrips directory
-- name: Copy generate-usercrypto.sh to destination directory
-  copy:
-    src: "{{ playbook_dir }}/../scripts/{{ files }}"
-    dest: "./build/{{ files }}"
-    mode: 0755
-    remote_src: yes
-  with_items:
-    - generate-user-crypto.sh
-  loop_control:
-    loop_var: files
-  when: vault_msp_result.failed or vault_admin_result.failed or vault_user_result.failed
-
-############################################################################################
 # This task changes the permission for msp
 - name: Changing the permission of msp files
   file:  
@@ -33,7 +19,6 @@
     mode: '0775'
   with_items:
     - "generate-crypto-{{ org_name|lower }}.sh"
-    - generate-user-crypto.sh
   loop_control:
     loop_var: files
   when: vault_msp_result.failed or vault_admin_result.failed or vault_user_result.failed
@@ -44,13 +29,11 @@
   shell: |
     export CA_TOOL_CLI=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ component_name }} | grep "ca-tools" | awk '{print $1}')
     KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/generate-crypto-{{ org_name|lower }}.sh {{ component_name }}/${CA_TOOL_CLI}:/root/ca-tools/{{org_name|lower}}/generate-crypto.sh
-    KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/generate-user-crypto.sh {{ component_name }}/${CA_TOOL_CLI}:/root/ca-tools/{{org_name|lower}}/generate-user-crypto.sh
     KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/crypto-config/{{component_type}}Organizations/{{ component_name }}/ca/ca.{{ component_name }}-cert.pem {{ component_name }}/${CA_TOOL_CLI}:crypto-config/{{component_type}}Organizations/{{ component_name }}/ca/
   when: vault_msp_result.failed or ( add_peer is defined and add_peer | bool == True ) or vault_admin_result.failed or vault_user_result.failed
 
-
 ############################################################################################
-# This task generates the crypto material by executing the generate_crypto.sh script file
+# This task generates the crypto material by executing the generate-crypto.sh script file
 # present in the Organizations CA Tools CLI
 - name: Generate crypto material for organization peers
   shell: |
