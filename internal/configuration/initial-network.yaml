@@ -1,0 +1,11 @@
+---
+#######################################
+# Master Playbook for the setting up and reseting the Blockchain Automation Framework DLT network
+#######################################
+  - hosts: all
+    gather_facts: no
+    no_log: True
+  - import_playbook: ../../platforms/hyperledger-fabric/configuration/deploy-network.yaml
+    vars:
+      add_new_org: 'false'
+    when: network.type == 'fabric' and (reset is undefined or reset == 'false')

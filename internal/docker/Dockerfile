@@ -24,7 +24,8 @@ RUN apt-get update -y && \
 
 RUN pip3 install ansible && \
     pip3 install jmespath && \
-    pip3 install openshift==0.10.1
+    pip3 install openshift==0.10.1 && \
+    pip3 install kubernetes
 
 RUN rm /etc/apt/apt.conf.d/docker-clean
 RUN mkdir /etc/ansible/
@@ -35,15 +36,14 @@ RUN /bin/echo -e "[ansible_provisioners:children]\nlocal\n[local]\nlocalhost ans
 # 2) Network specific configuration file as network.yaml
 # 3) Private key file which has write-access to the git repo
 
-#path to mount the repo
-VOLUME /home/blockchain-automation-framework/
-
 ## Customizations
 # Create non-privileged user
 RUN groupadd --gid 10000 baf \
     && useradd --uid 10001 --gid baf --shell /bin/bash --create-home bafusr
 
 RUN mkdir -p /home/bafusr/bin
+
+WORKDIR /home/bafusr
 
 # Install the dependencies, helm
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/v3.4.2/scripts/get-helm-3 \
@@ -64,9 +64,13 @@ RUN VAULT_VERSION=1.5.3 \
     && mv vault /home/bafusr/bin/vault \
     && chmod +x /home/bafusr/bin/vault
 
+# Change to bafusr
+# USER bafusr
+
 ENV PATH=/home/bafusr/bin:/home/bafusr/.local/bin:$PATH
 
 # To load the blockchain-automation-framework source code
-WORKDIR /home/blockchain-automation-framework
+WORKDIR /data/blockchain-automation-framework
 
-CMD ["/home/run.sh"]
+# Print the version when run default
+CMD ["ansible", "--version"]

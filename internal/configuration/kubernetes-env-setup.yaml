@@ -1,0 +1,4 @@
+---
+  - hosts: all
+  - import_playbook: ../../platforms/shared/configuration/kubernetes-env-setup.yaml
+    when: reset is undefined or reset == 'false'
