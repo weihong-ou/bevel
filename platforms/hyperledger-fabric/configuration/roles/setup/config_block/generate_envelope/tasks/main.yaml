@@ -1,0 +1,21 @@
+###########################################################################################################
+# This task calls nested_generate_envelope to generate the cli value files for first peer of organization
+# Create cli to use config block and updated config block to compute difference and pack it in a envelope
+############################################################################################################
+
+# Start the cli, configure and download the configuration block
+- name: Call nested_generate_envelope for the peer
+  include_tasks: nested_generate_envelope.yaml
+  vars:
+    channel_name: "{{ item.channel_name | lower }}"
+    org_query: "organizations[?name=='{{participantx.name}}']"
+    org: "{{ network | json_query(org_query) | first }}"
+    peer: "{{ participantx.peers | first }}"    
+    component_type: "{{ participantx.type }}"
+    os: "{{ fabric.os }}"
+    arch: "{{ fabric.arch }}"
+    version: "{{ network.version }}"
+  loop: "{{ participants }}"
+  loop_control:
+    loop_var: participantx
+  when: participantx.type == 'creator'

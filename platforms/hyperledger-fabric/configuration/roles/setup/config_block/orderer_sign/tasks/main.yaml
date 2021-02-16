@@ -1,0 +1,15 @@
+#############################################################################################
+# This role creates the block modification script.
+#############################################################################################
+
+############################################################################################
+# This task calls nested_create_cli to generate the cli value files for the orderer organization
+- name: Call nested_create_cli for the first orderer
+  include_tasks: nested_orderer_cli_sign.yaml
+  vars:
+    channel_name: "{{ item.channel_name | lower }}"
+    orderer: "{{ org.services.orderers | first }}"
+  loop: "{{ network.organizations }}"
+  loop_control:
+    loop_var: org
+  when: org.type == 'orderer'

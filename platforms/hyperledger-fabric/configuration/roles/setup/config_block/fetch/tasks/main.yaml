@@ -14,7 +14,7 @@
   loop: "{{ participants }}"
   loop_control:
     loop_var: participant
-  when: participant.type == 'creator'
+  when: participant.type == 'creator' and ( fetch_only is undefined or fetch_only == false )
 
 # Start the cli, configure and download the configuration block
 - name: Call nested_fetch_role for the peer
@@ -31,4 +31,21 @@
   loop: "{{ participants }}"
   loop_control:
     loop_var: participantx
-  when: participantx.type == 'creator'
+  when: participantx.type == 'creator' and ( fetch_only is undefined or fetch_only == false )
+
+# Start the cli, configure and download the configuration block
+- name: Call nested_fetch_role for the peer
+  include_tasks: nested_fetch_only.yaml
+  vars:
+    channel_name: "{{ item.channel_name | lower }}"
+    org_query: "organizations[?name=='{{participantx.name}}']"
+    org: "{{ network | json_query(org_query) | first }}"
+    peer: "{{ participantx.peers | first }}"    
+    component_type: "{{ participantx.type }}"
+    os: "{{ fabric.os }}"
+    arch: "{{ fabric.arch }}"
+    version: "{{ network.version }}"
+  loop: "{{ participants }}"
+  loop_control:
+    loop_var: participantx
+  when: participantx.type == 'creator' and fetch_only == true
