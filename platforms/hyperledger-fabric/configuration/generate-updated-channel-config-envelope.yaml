@@ -1,19 +1,17 @@
-# This playbook adds an organization to a DLT with Fabric network on existing Kubernetes clusters
-# The Kubernetes clusters should already be created and the infomation to connect to the
-#  clusters be updated in the network.yaml file that is used as an input to this playbook
+# This playbook is used to generate the updated config block envelope for updating channel config
+# The Kubernetes clusters should already be created and the information to connect to the
+# clusters be updated in the network.yaml file that is used as an input to this playbook
 ###########################################################################################
 # To Run this playbook from this directory, use the following command (network.yaml also in this directory)
-#  ansible-playbook add-organization.yaml -e "@./network.yaml" -e "add_new_org='true'"
+#  ansible-playbook generate-updated-channel-config-envelope.yaml -e "@./network.yaml"
 ############################################################################################
 # Please ensure that the ../../shared/configuration playbooks have been run and a DLT network exists.
-# Please ensure the orderer certificates are placed on the paths mentioned in orderer.certificate in network.yaml
 ---
   # This will apply to ansible_provisioners. /etc/ansible/hosts should be configured with this group
 - hosts: ansible_provisioners
   gather_facts: no
   tasks:
-    # This role is to start the existing peer cli
-    # Fetch the configuration block and modify the block
+    # This role is to compute difference and generate updated_config_envelope
     - include_role:
         name: "setup/config_block/generate_envelope"
       vars:

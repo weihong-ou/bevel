@@ -19,8 +19,8 @@ network:
 
   # For providing Custom Templates to generate configtx.yaml
   configtx:
-    custom: false               # true : when custom tpls are to be provided | false : when the default tpls are to be used
-    folder_path: /home/blockchain-automation-framework/build/configtx_tpl/               # path to folder where all 4 tpls are placed e.g. /home/blockchain-automation-framework/build/configtx_tpl/ 
+    custom: true               # true : when custom tpl(s) are to be provided | false : when the default tpl(s) are to be used
+    folder_path: /absolute/path/to/folder             # path to folder where the tpl(s) are placed e.g. /home/blockchain-automation-framework/build/configtx_tpl/
 
   # Docker registry details where images are stored. This will be used to create k8s secrets
   # Please ensure all required images are built and stored in this registry.
@@ -174,6 +174,7 @@ network:
           type: ca
           grpc:
             port: 7054
+          configpath: /absolute/path/to/config      # OPTIONAL: Only when a custom fabric-ca-server config is to be used
         
         consensus:
           name: raft
@@ -220,7 +221,24 @@ network:
         url: ca.manufacturer-net.org2ambassador.blockchaincloudpoc.com:8443
         certificate: file/server.crt
 
-      cloud_provider: aws   # Options: aws, azure, gcp, digitalocean, minikube
+      # Generating User Certificates with custom attributes using Fabric CA in BAF for Peer Organizations
+      users:
+        - user:
+          identity: User1
+          attributes:
+            - key: key1
+              value: value1
+            - key: key2
+              value: value2
+        - user:
+          identity: User2
+          attributes:
+            - key: key1
+              value: value1
+            - key: key3
+              value: value3
+
+      cloud_provider: aws   # Options: aws, azure, gcp, minikube
       aws:
         access_key: "aws_access_key"        # AWS Access key, only used when cloud_provider=aws
         secret_key: "aws_secret_key"        # AWS Secret key, only used when cloud_provider=aws

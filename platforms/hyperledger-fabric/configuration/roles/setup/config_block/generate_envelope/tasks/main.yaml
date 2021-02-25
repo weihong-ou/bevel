@@ -3,7 +3,8 @@
 # Create cli to use config block and updated config block to compute difference and pack it in a envelope
 ############################################################################################################
 
-# Start the cli, configure and download the configuration block
+# Start the cli and use the existing and updated config block to
+# compute the difference and generate config block envelope
 - name: Call nested_generate_envelope for the peer
   include_tasks: nested_generate_envelope.yaml
   vars:

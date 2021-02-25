@@ -88,7 +88,7 @@ This task get the modified configuration block signed from the admin of existing
     *kubernetes: Kubernetes cluster information of the organization
 
 #### 5. delete the cli
-This task creates the cli for the creator organization first peer.
+This task deletes the created cli.
 ##### Input Variables
 
     *config_file: Kubernetes file
@@ -142,7 +142,7 @@ This task get the modified configuration block signed from the admin of creator 
     *kubernetes: Kubernetes cluster information of the organization
 
 #### 5. delete the cli
-This task creates the cli for the creator organization first peer.
+This task deletes the created cli.
 ##### Input Variables
 
     *config_file: Kubernetes file

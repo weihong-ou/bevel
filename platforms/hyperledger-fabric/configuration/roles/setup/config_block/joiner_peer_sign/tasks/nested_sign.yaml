@@ -52,8 +52,8 @@
   delay: 40
 
 ############################################################################################
-# This task fetches the modified config block from build and the admin signs the config block
-# Copy the block back to the build folder after signature
+# This task copies the envelope from build and gets the admin sign
+# Copy the envelope back to the build folder after signature
 - name: signing from the admin of {{ org.name }}
   shell: |
     export PEER_CLI=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ org.name | lower }}-net | grep "cli" | head -n 1 | awk '{print $1}')

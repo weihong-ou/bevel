@@ -25,6 +25,10 @@ Fabric operations
     operations/adding_new_ordererpeer_fabric
     operations/install_instantiate_chaincode.md
     operations/upgrading_chaincode.md
+    operations/custom_user_certificate.md
+    operations/custom_ca_server_config.md
+    operations/custom_configtx_templates.md
+    operations/updating_running_channel_conf.md
     
 Corda operations
 -----------------------

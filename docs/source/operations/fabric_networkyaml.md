@@ -18,6 +18,8 @@ The configurations are grouped in the following sections for better understandin
 
 * env
 
+* configtx
+
 * orderers
 
 * channels
@@ -83,6 +85,25 @@ The fields under `docker` section are
 **NOTE:** Please follow [these instructions](../operations/configure_prerequisites.html#docker) to build and store the docker images before running the Ansible playbooks.
 
 ---
+
+`configtx` section contains information, for whether to include custom templates for generating the configtx.yaml file.
+
+The snapshot of the `orderers` section with example values is below
+```yaml
+  # For providing Custom Templates to generate configtx.yaml
+  configtx:
+    custom: false               # true : when custom tpls are to be provided | false : when the default tpls are to be used
+    folder_path: /absolute/path/to/folder             # path to folder where the tpl(s) are placed e.g. /home/blockchain-automation-framework/build/configtx_tpl/ 
+
+```
+
+The fields under the each `orderer` are
+ 
+| Field       | Description                                               |
+|-------------|-----------------------------------------------------------|
+| configtx.custom        | Flag to determine whether custom template(s) needs to be used or not          |
+| configtx.folder_path   | The absolute path to the folder where the custom template(s) have been placed |
+
 
 `orderers` section contains a list of orderers with variables which will expose it for the network.
 
@@ -304,6 +325,7 @@ Each organization will have a ca service under the service field. The snapshot o
           type: ca
           grpc:
             port: 7054
+          configpath: /absolute/path/to/config      # OPTIONAL: Only when a custom fabric-ca-server config is to be used
 ```
 The fields under `ca` service are
 
@@ -313,7 +335,34 @@ The fields under `ca` service are
 | subject                         | Subject format can be referred at [OpenSSL Subject](https://www.openssl.org/docs/man1.0.2/man1/openssl-req.html) |
 | type | Type must be `ca` for certification authority |
 | grpc.port                       | Grpc port number |
+| configpath                      | *(Only when a custom fabric-ca-server config is to be used)* Absolute path for the custom fabric-ca-server config file |
 
+Each organization with type as `peer` can have a list of users with custom attrs. The snapshot of users with example values is below
+```yaml
+        # Generating User Certificates with custom attributes using Fabric CA in BAF for Peer Organizations
+        users:
+          - user:
+            identity: User1
+            attributes:
+              - key: key1
+                value: value1
+              - key: key2
+                value: value2
+          - user:
+            identity: User2
+            attributes:
+              - key: key1
+                value: value1
+              - key: key3
+                value: value3
+```
+
+| Field                 |  Description                     |
+|-----------------------|----------------------------------|
+| user.identity         | Name of the user                 |
+| user.attributes       | List of custom attrs <k,v> pairs |
+| user.attributes.key   | Key for the custom attr          |
+| user.attributes.value | Value for the custom attr key    |
 
 Each organization with type as peer will have a peers service. The snapshot of peers service with example values is below
 ```yaml

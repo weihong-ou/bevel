@@ -3,7 +3,7 @@
 # Create cli to get config block and add new organization configuration to it
 ############################################################################################
 
-# Start the cli, configure and download the configuration block
+# Start the cli, submit configuration block envelope
 - name: Call nested_fetch_role for the peer
   include_tasks: nested_update.yaml
   vars:

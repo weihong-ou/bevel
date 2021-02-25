@@ -1,9 +1,10 @@
-# This playbook deploys manages user certificates for peers using existing fabric-ca deployment on k8s
+# This playbook manages user certificates for peers using existing Fabric-CA deployment on k8s
 # The Kubernetes clusters should already be created and the infomation to connect to the
-#  clusters be updated in the network.yaml file that is used as an input to this playbook
+# clusters be updated in the network-user-certificate.yaml file that is used as an input to this playbook
 ###########################################################################################
-# To Run this playbook from this directory, use the following command (network-user-certificate.yaml also in this directory)
-#  ansible-playbook user-certifiate.yaml -e "@./network-user-certificate.yaml"
+# To Run this playbook from this directory, use the following command 
+# (network-user-certificate.yaml also in this directory)
+# ansible-playbook user-certifiate.yaml -e "@./network-user-certificate.yaml"
 ############################################################################################
 
 ---
@@ -47,7 +48,7 @@
 
     ############################################################################################
     # This task generates the crypto material by executing the generate-user-crypto.sh script file
-    # present in the Organizations CA Tools CLI
+    # present in the Organization's CA Tools CLI
     - name: Generate crypto material for user
       include_role:
         name: "create/users"

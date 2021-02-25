@@ -15,7 +15,6 @@ network:
   # If an organization is also hosting the root of the network (e.g. doorman, membership service, etc),
   # then these services should be listed in this section as well.
   organizations:
-
     - organization:
       name: carrier
       country: GB
@@ -49,15 +48,20 @@ network:
         root_token: "vault_root_token"
         secret_path: "secret"
 
+      # Generating User Certificates with custom attributes using Fabric CA in BAF for Peer Organizations
       users:
         - user:
-          identity: AppUser
-          profile: 
+          identity: User1
           attributes:
             - key: key1
               value: value1
             - key: key2
               value: value2
+        - user:
+          identity: User2
+          attributes:
+            - key: key1
+              value: value1
             - key: key3
               value: value3
 

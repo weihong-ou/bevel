@@ -49,7 +49,7 @@ This task fetches the config block from the channel and add the new organization
     config_stat_result: This variable stores the output of configtxgen check query.
 
 #### 4. delete the cli
-This task creates the cli for the creator organization first peer.
+This task deletes the created cli.
 ##### Input Variables
 
     *config_file: Kubernetes file

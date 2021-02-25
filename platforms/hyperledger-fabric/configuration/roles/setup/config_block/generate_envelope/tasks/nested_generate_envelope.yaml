@@ -38,8 +38,7 @@
   delay: 40
 
 ############################################################################################
-# This task fetch the config block from blockchain by executing the create_block.sh script file
-# from first peer of creator cli
+# This task use the existing and updated config block to compute the difference and generate config block envelope
 - name: update configuration block to blockchain using files from build folder
   shell: |
     export PEER_CLI=$(KUBECONFIG={{ org.k8s.config_file }} kubectl get po -n {{ org.name }}-net | grep "cli" | head -n 1 | awk '{print $1}')

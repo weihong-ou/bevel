@@ -38,7 +38,7 @@
   delay: 40
 
 ############################################################################################
-# This task fetch the config block from blockchain by executing the create_block.sh script file
+# This task submits the signed config envelope to the channel
 # from first peer of creator cli
 - name: update configuration block to blockchain using files from build folder
   shell: |

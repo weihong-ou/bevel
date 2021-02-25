@@ -1,19 +1,17 @@
-# This playbook adds an organization to a DLT with Fabric network on existing Kubernetes clusters
-# The Kubernetes clusters should already be created and the infomation to connect to the
-#  clusters be updated in the network.yaml file that is used as an input to this playbook
+# This playbook is used to submit the signed updated config block envelope for updating channel config
+# The Kubernetes clusters should already be created and the information to connect to the
+# clusters be updated in the network.yaml file that is used as an input to this playbook
 ###########################################################################################
 # To Run this playbook from this directory, use the following command (network.yaml also in this directory)
-#  ansible-playbook add-organization.yaml -e "@./network.yaml" -e "add_new_org='true'"
+#  ansible-playbook sign-update-config-envelope.yaml -e "@./network.yaml"
 ############################################################################################
 # Please ensure that the ../../shared/configuration playbooks have been run and a DLT network exists.
-# Please ensure the orderer certificates are placed on the paths mentioned in orderer.certificate in network.yaml
 ---
   # This will apply to ansible_provisioners. /etc/ansible/hosts should be configured with this group
 - hosts: ansible_provisioners
   gather_facts: no
   tasks:
-    # This role is to start the existing peer cli
-    # Fetch the configuration block and modify the block
+    # This role is to get joiner peer signatures
     - include_role:
         name: "setup/config_block/joiner_peer_sign"
       vars:
@@ -23,8 +21,7 @@
       when: item.update_config.joiner_peer_sign is defined and item.update_config.joiner_peer_sign is true
       loop: "{{ network['channels'] }}"
 
-    # This role is to start the existing peer cli
-    # Fetch the configuration block and modify the block
+    # This role is to get orderer signatures
     - include_role:
         name: "setup/config_block/orderer_sign"
       vars:
@@ -34,8 +31,7 @@
       when: item.update_config.orderer_sign is defined and item.update_config.orderer_sign is true
       loop: "{{ network['channels'] }}"
 
-    # This role is to start the existing peer cli
-    # Fetch the configuration block and modify the block
+    # This role is to submit the signed config to the channel
     - include_role:
         name: "setup/config_block/update"
       vars:

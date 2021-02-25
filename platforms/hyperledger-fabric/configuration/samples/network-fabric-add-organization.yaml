@@ -123,6 +123,23 @@ network:
       ca_data:
         url: ca.supplychain-net.org1ambassador.blockchaincloudpoc.com:8443
         certificate: file/server.crt        # This has not been implemented in 0.2.0.0
+
+      # Generating User Certificates with custom attributes using Fabric CA in BAF for Peer Organizations
+      users:
+        - user:
+          identity: User1
+          attributes:
+            - key: key1
+              value: value1
+            - key: key2
+              value: value2
+        - user:
+          identity: User2
+          attributes:
+            - key: key1
+              value: value1
+            - key: key3
+              value: value3
   
       cloud_provider: aws   # Options: aws, azure, gcp, digitalocean, minikube
       aws:
@@ -165,6 +182,7 @@ network:
           type: ca
           grpc:
             port: 7054
+          configpath: /absolute/path/to/config      # OPTIONAL: Only when a custom fabric-ca-server config is to be used
         
         consensus:
           name: kafka
