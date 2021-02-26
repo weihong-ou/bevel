@@ -48,4 +48,4 @@
   loop: "{{ participants }}"
   loop_control:
     loop_var: participantx
-  when: participantx.type == 'creator' and fetch_only == true
+  when: participantx.type == 'creator' and ( fetch_only is defined and fetch_only == true )
