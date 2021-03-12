@@ -29,6 +29,10 @@ Fabric operations
     operations/custom_ca_server_config.md
     operations/custom_configtx_templates.md
     operations/updating_running_channel_conf.md
+    operations/adding_org_msp_fabric.md
+    operations/sign_config_envelope.md
+    operations/join-existing-channel.md
+    operations/deploy-only-peers.md
     
 Corda operations
 -----------------------
