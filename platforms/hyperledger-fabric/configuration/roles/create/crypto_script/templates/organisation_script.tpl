@@ -43,6 +43,8 @@ fabric-ca-client affiliation add ${AFFILIATION} -u https://${CA_ADMIN_USER}:${CA
 ## Register and enroll admin for Org and populate admincerts for MSP
 fabric-ca-client register -d --id.name ${ORG_ADMIN_USER} --id.secret ${ORG_ADMIN_PASS} --id.type admin --csr.names "${SUBJECT_PEER}" --id.affiliation ${AFFILIATION} --id.attrs "hf.Registrar.Roles=client,hf.Registrar.Attributes=*,hf.Revoker=true,hf.AffiliationMgr=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" --tls.certfiles ${ROOT_TLS_CERT} --home ${CAS_FOLDER}
 
+rm -rf ${ORG_HOME}/admin/msp
+
 fabric-ca-client enroll -d -u https://${ORG_ADMIN_USER}:${ORG_ADMIN_PASS}@${CA} --id.affiliation ${AFFILIATION} --tls.certfiles ${ROOT_TLS_CERT} --home ${ORG_HOME}/admin  --csr.names "${SUBJECT_PEER}"
 
 mkdir -p ${ORG_CYPTO_FOLDER}/msp/admincerts
@@ -51,6 +53,7 @@ cp ${ORG_HOME}/admin/msp/signcerts/* ${ORG_CYPTO_FOLDER}/msp/admincerts/${ORG_AD
 mkdir ${ORG_HOME}/admin/msp/admincerts
 cp ${ORG_HOME}/admin/msp/signcerts/* ${ORG_HOME}/admin/msp/admincerts/${ORG_ADMIN_USER}-cert.pem
 
+rm -rf ${ORG_CYPTO_FOLDER}/users/${ORG_ADMIN_USER}
 mkdir -p ${ORG_CYPTO_FOLDER}/users/${ORG_ADMIN_USER}
 cp -R ${ORG_HOME}/admin/msp ${ORG_CYPTO_FOLDER}/users/${ORG_ADMIN_USER}
 
@@ -86,11 +89,16 @@ while [  ${COUNTER} -lt ${NO_OF_PEERS} ]; do
 
 	# Copy the TLS key and cert to the appropriate place
 	mkdir -p ${ORG_CYPTO_FOLDER}/peers/${PEER}/tls
+	
 	cp ${ORG_HOME}/cas/peers/tls/keystore/* ${ORG_CYPTO_FOLDER}/peers/${PEER}/tls/server.key
 	cp ${ORG_HOME}/cas/peers/tls/signcerts/* ${ORG_CYPTO_FOLDER}/peers/${PEER}/tls/server.crt
 	cp ${ORG_HOME}/cas/peers/tls/tlscacerts/* ${ORG_CYPTO_FOLDER}/peers/${PEER}/tls/ca.crt
 	
 	rm -rf ${ORG_HOME}/cas/peers/tls
+	rm -rf ${ORG_HOME}/cas/admin/tls
+	rm -rf ${ORG_HOME}/cas/admin/msp
+
+	rm -rf ${ORG_CYPTO_FOLDER}/peers/${PEER}/msp
 	
 	# Enroll again to get the peer's enrollment certificate (default profile)
 	fabric-ca-client enroll -d -u https://${PEER}:${PEER}-pw@${CA} -M ${ORG_CYPTO_FOLDER}/peers/${PEER}/msp --tls.certfiles ${ROOT_TLS_CERT}  --csr.names "${SUBJECT_PEER}"

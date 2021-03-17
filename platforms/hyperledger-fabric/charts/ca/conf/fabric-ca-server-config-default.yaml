@@ -128,7 +128,7 @@ registry:
   maxenrollments: -1
 
   # Contains identity information which is used when LDAP is disabled
-  # Do not edit the templatized values
+  # Do not edit this value
   identities:
      - name: {{ $.Values.server.admin }}
        pass: {{ $.Values.server.admin }}pw
