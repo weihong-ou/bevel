@@ -1,0 +1,8 @@
+############################################################################################
+# This task restarts pods
+- name: Restarts pods
+  shell: |
+    KUBECONFIG={{ kubernetes.config_file }} kubectl delete hr -n {{ component_name }} {{ component }}
+  loop: "{{ components }}"
+  loop_control:
+    loop_var: component

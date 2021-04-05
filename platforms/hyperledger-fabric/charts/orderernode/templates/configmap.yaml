@@ -11,9 +11,11 @@ metadata:
     {{- include "labels.custom" . | nindent 2 }}
 data:
   FABRIC_LOGGING_SPEC: {{ $.Values.orderer.loglevel }}
-  ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
   ORDERER_GENERAL_GENESISMETHOD: file
   ORDERER_GENERAL_GENESISFILE: /var/hyperledger/orderer/orderer.genesis.block
+  GODEBUG: "netdns=go"
+  {{ if eq $.Values.orderer.orderer_yaml.initialize_from "global_var" }}
+  ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
   ORDERER_GENERAL_LOCALMSPID: {{ $.Values.orderer.localmspid }}
   ORDERER_GENERAL_KEEPALIVE_SERVERINTERVAL: {{ $.Values.orderer.keepaliveserverinterval }}
   ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/orderer/crypto/msp
@@ -27,7 +29,7 @@ data:
   ORDERER_KAFKA_RETRY_SHORTINTERVAL: "1s"
   ORDERER_KAFKA_RETRY_SHORTTOTAL: "30s"
   ORDERER_KAFKA_VERBOSE: "true"
-  GODEBUG: "netdns=go"
+  {{ end }}
 
 ---
 apiVersion: v1
@@ -43,3 +45,21 @@ metadata:
     {{- include "labels.custom" . | nindent 2 }}
 data:
   genesis.block.base64: {{ .Values.genesis | quote }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Values.orderer.name }}-orderer-yaml-config
+  namespace: {{ $.Values.metadata.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $.Values.orderer.name }}-orderer-yaml-config
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "labels.custom" . | nindent 2 }}
+data:
+  {{ if eq $.Values.orderer.orderer_yaml.initialize_from "file" }}
+  orderer.yaml: |
+    {{ (tpl (.Files.Get ( printf "%s" $.Values.orderer.orderer_yaml.configpath )) . ) | nindent 6 }}
+  {{ end }}

@@ -35,6 +35,11 @@ orderer:
   #Provide the interval in which the orderer to signal the connection has kept alive  
   #Eg. keepaliveserverinterval: 10s
   keepaliveserverinterval: 10s
+  orderer_yaml:
+    # Eg. file | global_var
+    initialize_from: global_var
+    # Eg. configpath: conf/default_orderer.yaml
+    configpath: conf/default_orderer.yaml
 
 consensus:
   #Provide name of the consensus. Currently support raft and kafka

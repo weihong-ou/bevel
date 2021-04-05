@@ -2,6 +2,17 @@
 # This role creates value file for zkKafka and orderer
 #############################################################################################
 
+###########################################################################################
+# Copy custom core.yaml for peer
+- name: Copy custom config for fabric-ca server
+  shell: |
+    cp {{ orderer.orderer_yaml.configpath }} ../../../{{ charts_dir }}/orderernode/conf/{{ orderer.name }}_{{ item.name | lower}}_orderer.yaml
+  loop: "{{ component_services.orderers }}"
+  loop_control:
+    loop_var: orderer 
+  when: 
+    - orderer.orderer_yaml is defined
+    - orderer.orderer_yaml.configpath is defined
 
 ############################################################################################
 # This task creates the value file for kafka for orderes as per requirements mentioned in
@@ -17,7 +28,9 @@
     component_name: "zkkafka"
     type: "zkkafka"
     consensus: "{{component_services.consensus}}"
-  when: component_services.consensus.name == 'kafka' and component_services.consensus is defined
+  when: 
+    - component_services.consensus.name == 'kafka' and component_services.consensus is defined
+    - update_orderer_yaml is undefined or update_orderer_yaml == false
 
 ############################################################################################
 # This task creates the value file for the Orderers as per requirements mentioned in 
@@ -40,6 +53,7 @@
   when: 
     - component_services.orderers is defined and component_services.consensus is defined
     - orderer.status is not defined or orderer.status == 'new'
+    - update_orderer_yaml is undefined or update_orderer_yaml == false
 
 #Git Push : Pushes the above generated files to git directory 
 - name: Git Push

@@ -24,6 +24,13 @@ spec:
       localmspid: {{ org_name }}MSP
       tlsstatus: true
       keepaliveserverinterval: 10s
+{% if orderer.orderer_yaml is defined and orderer.orderer_yaml.initialize_from == 'file' %}
+      orderer_yaml:
+        initialize_from: file
+{% if orderer.orderer_yaml.configpath is defined %}
+        configpath: conf/{{  orderer.name }}_{{ org_name }}_orderer.yaml
+{% endif %}
+{% endif %}      
     
     consensus:
       name: {{ orderer.consensus }}

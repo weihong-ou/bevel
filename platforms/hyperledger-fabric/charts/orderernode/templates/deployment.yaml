@@ -51,6 +51,14 @@ spec:
           items:
             - key: genesis.block.base64
               path: genesis.block.base64
+      {{ if eq $.Values.orderer.orderer_yaml.initialize_from "file" }}
+      - name: {{ $.Values.orderer.name }}-orderer-yaml-config-volume
+        configMap:
+          name: {{ $.Values.orderer.name }}-orderer-yaml-config
+          items:
+            - key: orderer.yaml
+              path: orderer.yaml
+      {{ end }}
       initContainers:
       - name: kafka-healthcheck
         image: {{ $.Values.metadata.images.healthcheck }}
@@ -206,9 +214,19 @@ spec:
       - name: {{ $.Values.orderer.name }}
         image: {{ $.Values.metadata.images.orderer }}
         workingDir: /opt/gopath/src/github.com/hyperledger/fabric
-        command: ["sh", "-c", "cat /var/hyperledger/orderer/genesis/genesis.block.base64 | base64 -d > /var/hyperledger/orderer/orderer.genesis.block && orderer"]
+        command: ["sh", "-c"]
+        args:
+        - |-
+          if [ "${INITIALIZE_FROM}" == "file" ]; then
+            cp /ordereryaml/orderer.yaml /etc/hyperledger/fabric/orderer.yaml;
+          fi
+          cat /var/hyperledger/orderer/genesis/genesis.block.base64 | base64 -d > /var/hyperledger/orderer/orderer.genesis.block;
+          orderer
         ports:
         - containerPort: 7050
+        env:
+        - name: INITIALIZE_FROM
+          value: "{{ $.Values.orderer.orderer_yaml.initialize_from }}"
         envFrom:
         - configMapRef:
             name: {{ $.Values.orderer.name }}-config
@@ -218,6 +236,11 @@ spec:
         - name: {{ $.Values.orderer.name }}-genesis-volume
           mountPath: /var/hyperledger/orderer/genesis
           readOnly: true
+        {{ if eq $.Values.orderer.orderer_yaml.initialize_from "file" }}
+        - name: {{ $.Values.orderer.name }}-orderer-yaml-config-volume
+          mountPath: /ordereryaml
+          readOnly: true
+        {{ end }}
         - name: certificates
           mountPath: /var/hyperledger/orderer/crypto
           readOnly: true

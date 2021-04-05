@@ -192,14 +192,20 @@ spec:
         command: ["sh", "-c"]
         args:
         - |-
-          cp /etc/hyperledger/fabric/NodeOUconfig/mspconfig  /etc/hyperledger/fabric/crypto/msp/config.yaml
-          export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=`cat /etc/hyperledger/fabric/crypto/user_cred`
+          if [ "${INITIALIZE_FROM}" == "file" ]; then
+            cp /coreyaml/core.yaml /etc/hyperledger/fabric/core.yaml;
+          fi
+          cp /etc/hyperledger/fabric/NodeOUconfig/mspconfig  /etc/hyperledger/fabric/crypto/msp/config.yaml;
+          export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=`cat /etc/hyperledger/fabric/crypto/user_cred`;
           peer node start
         ports:
         - name: grpc
           containerPort: 7051
         - name: events
           containerPort: 7053
+        env:
+        - name: INITIALIZE_FROM
+          value: "{{ $.Values.peer.core_yaml.initialize_from }}"
         envFrom:
         - configMapRef:
             name: {{ $.Values.peer.name }}-config
@@ -213,6 +219,11 @@ spec:
         - name: {{ $.Values.peer.name }}-msp-config-volume
           mountPath: /etc/hyperledger/fabric/NodeOUconfig
           readOnly: true
+        {{ if eq $.Values.peer.core_yaml.initialize_from "file"  }}
+        - name: {{ $.Values.peer.name }}-core-yaml-config-volume
+          mountPath: /coreyaml
+          readOnly: true
+        {{ end }}
       volumes:
       {{ if .Values.vault.tls  }}
       - name: vaultca
@@ -234,6 +245,14 @@ spec:
           items:
             - key: mspconfig
               path: mspconfig
+      {{ if eq $.Values.peer.core_yaml.initialize_from "file"  }}
+      - name: {{ $.Values.peer.name }}-core-yaml-config-volume
+        configMap:
+          name: {{ $.Values.peer.name }}-core-yaml-config
+          items:
+            - key: core.yaml
+              path: core.yaml
+      {{ end }}
       - name: datadir
         persistentVolumeClaim:
           claimName: {{ $.Values.peer.name }}-peer-volume     

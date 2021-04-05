@@ -33,6 +33,13 @@ spec:
       builder: hyperledger/fabric-ccenv:{{ network.version }}
       couchdb:
         username: {{ name }}-user
+{% if peer.core_yaml is defined and peer.core_yaml.initialize_from == 'file' %}
+      core_yaml:
+        initialize_from: file
+{% if peer.core_yaml.configpath is defined %}
+        configpath: conf/{{ peer_name }}_{{ name }}_core.yaml
+{% endif %}
+{% endif %}  
 
     storage:
       peer:

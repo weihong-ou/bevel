@@ -4,6 +4,18 @@
 #############################################################################################
 
 ###########################################################################################
+# Copy custom core.yaml for peer
+- name: Copy custom config for fabric-ca server
+  shell: |
+    cp {{ peer.core_yaml.configpath }} ../../../{{ charts_dir }}/peernode/conf/{{ peer.name }}_{{ item.name | lower }}_core.yaml
+  loop: "{{ component_services.peers }}"
+  loop_control:
+    loop_var: peer 
+  when: 
+    - peer.core_yaml is defined
+    - peer.core_yaml.configpath is defined
+
+###########################################################################################
 # This task writes the couchdb credentials for each organization to the vault
 - name: Write the couchdb credentials to Vault
   shell: |
@@ -13,6 +25,7 @@
     VAULT_TOKEN: "{{ vault.root_token }}"
   tags:
     - molecule-idempotence-notest
+  when: update_core_yaml is undefined or update_core_yaml == false
 
 ############################################################################################
 # This task is the nested task for main.yaml which helps to iterate over all peers
@@ -32,7 +45,9 @@
   loop: "{{ component_services.peers }}"
   loop_control:
     loop_var: peer 
-  when: peer.peerstatus is not defined or peer.peerstatus == 'new'
+  when: 
+    - peer.peerstatus is not defined or peer.peerstatus == 'new' 
+    - update_core_yaml is undefined or update_core_yaml == false 
 
 #Git Push : Pushes the above generated files to git directory 
 - name: Git Push
@@ -64,6 +79,8 @@
   loop: "{{ component_services.peers }}"
   loop_control:
     loop_var: peer 
-  when: peer.peerstatus is not defined or peer.peerstatus == 'new'
+  when: 
+    - peer.peerstatus is not defined or peer.peerstatus == 'new'
+    - update_core_yaml is undefined or update_core_yaml == false
   tags:
     - notest

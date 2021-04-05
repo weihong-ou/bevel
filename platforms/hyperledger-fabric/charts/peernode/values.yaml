@@ -69,6 +69,11 @@ peer:
         organizationalunitidentifier: admin
       ordererOUidentifier:
         organizationalunitidentifier: orderer
+  core_yaml:
+    # Eg. file | global_var
+    initialize_from: global_var
+    # Eg. configpath: conf/default_core.yaml
+    configpath: conf/default_core.yaml
 
 storage:
   peer:

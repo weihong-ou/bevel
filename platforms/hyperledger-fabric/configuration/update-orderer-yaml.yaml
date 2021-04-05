@@ -3,7 +3,7 @@
 #  clusters be updated in the network.yaml file that is used as an input to this playbook
 ###########################################################################################
 # To Run this playbook from this directory, use the following command (network.yaml also in this directory)
-# ansible-playbook platforms/hyperledger-fabric/configuration/restart-pods.yaml --extra-vars "@path-to-network.yaml"
+#  ansible-playbook deploy-network.yaml -e "@./network.yaml"
 ############################################################################################
 # Please ensure that the ../../shared/configuration playbooks have been run using the same network.yaml
 ---
@@ -12,20 +12,28 @@
   gather_facts: no
   tasks:
 
-    ############################################################################################
-    # This task restarts pods
-    - name: Restarts pods
+    # This role updated the orderer.yaml for orderers of organisations
+    - name: update all orderers
       include_role:
-        name: "delete/pods"
+        name: "create/orderers"
       vars:
-        component_name: "{{ item.name | lower}}-net"   
-        kubernetes: "{{ item.k8s }}"
-        components: "{{ item.components }}"
+        build_path: "./build"
+        namespace: "{{ item.name | lower}}-net"
+        component_type: "{{ item.type | lower}}"
+        component_services: "{{ item.services }}"
+        vault: "{{ item.vault }}"
+        git_url: "{{ item.gitops.git_ssh }}"
+        git_branch: "{{ item.gitops.branch }}"
+        docker_url: "{{ network.docker.url }}"
+        charts_dir: "{{ item.gitops.chart_source }}"
+        values_dir: "{{playbook_dir}}/../../../{{item.gitops.release_dir}}/{{ item.name | lower }}"
+        update_orderer_yaml: true
       loop: "{{ network['organizations'] }}"
+      when: item.type == 'orderer'
 
   vars: #These variables can be overriden from the command line
     privilege_escalate: false           #Default to NOT escalate to root privledges
     install_os: "linux"                 #Default to linux OS
     install_arch:  "amd64"              #Default to amd64 architecture
     bin_install_dir:  "~/bin"            #Default to /bin install directory for binaries
-    refresh_cert: true
+    add_new_org: 'false'                # Default to false as this is for main network creation

@@ -33,6 +33,15 @@ Fabric operations
     operations/sign_config_envelope.md
     operations/join-existing-channel.md
     operations/deploy-only-peers.md
+    operations/refresh-peer-certs.md
+    operations/update_running_orderer_yaml.md
+    operations/update_running_core_yaml_peer.md
+    operations/fetch_core_yaml.md
+    operations/fetch_orderer_yaml.md
+    operations/custom_core_yaml_peer.md
+    operations/custom_orderer_yaml.md
+    operations/restart-components.md
+    operations/restart-hr.md
     
 Corda operations
 -----------------------

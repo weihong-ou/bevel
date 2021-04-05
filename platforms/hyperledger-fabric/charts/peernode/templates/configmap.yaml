@@ -10,17 +10,19 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "labels.custom" . | nindent 2 }}
 data:
+  FABRIC_LOGGING_SPEC: grpc=debug:{{ $.Values.peer.loglevel }}
+  {{ if $.Values.peer.gossipexternalendpoint }}
+  CORE_PEER_GOSSIP_EXTERNALENDPOINT: {{ $.Values.peer.gossipexternalendpoint }}
+  {{ end }}
+  GODEBUG: "netdns=go"
+  {{ if eq $.Values.peer.core_yaml.initialize_from "global_var" }}
   CORE_VM_ENDPOINT: unix:///host/var/run/docker.sock
   CORE_PEER_ID: {{ $.Values.peer.name }}.{{ $.Values.metadata.namespace }}
-  FABRIC_LOGGING_SPEC: grpc=debug:{{ $.Values.peer.loglevel }}
   CORE_LEDGER_STATE_STATEDATABASE: CouchDB
   CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS: localhost:5984
   CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME: "{{ $.Values.peer.couchdb.username }}"
   CORE_PEER_ADDRESS: {{ $.Values.peer.name }}.{{ $.Values.metadata.namespace }}:{{ $.Values.service.ports.grpc.clusteripport }}
   CORE_PEER_GOSSIP_BOOTSTRAP: {{ $.Values.peer.gossippeeraddress }}
-  {{ if $.Values.peer.gossipexternalendpoint }}
-  CORE_PEER_GOSSIP_EXTERNALENDPOINT: {{ $.Values.peer.gossipexternalendpoint }}
-  {{ end }}
   CORE_PEER_LOCALMSPID: {{ $.Values.peer.localmspid }}
   CORE_PEER_TLS_ENABLED: "{{ $.Values.peer.tlsstatus }}"
   CORE_PEER_TLS_CERT_FILE: /etc/hyperledger/fabric/crypto/tls/server.crt
@@ -32,9 +34,10 @@ data:
   CORE_PEER_ADDRESSAUTODETECT: "true"
   CORE_PEER_NETWORKID: {{ $.Values.peer.name }}.{{ $.Values.metadata.namespace }}
   CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/crypto/msp
-  GODEBUG: "netdns=go"
   CORE_PEER_GOSSIP_SKIPHANDSHAKE: "true"
   CORE_CHAINCODE_BUILDER: "{{ $.Values.peer.builder }}"
+  {{ end }}
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -67,3 +70,21 @@ data:
         OrdererOUIdentifier:
           Certificate: cacerts/ca.crt
           OrganizationalUnitIdentifier: {{ $.Values.peer.mspconfig.nodeOUs.ordererOUidentifier.organizationalunitidentifier }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Values.peer.name }}-core-yaml-config
+  namespace: {{ $.Values.metadata.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $.Values.peer.name }}-core-yaml-config
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "labels.custom" . | nindent 2 }}
+data:
+  {{ if eq $.Values.peer.core_yaml.initialize_from "file" }}
+  core.yaml: |
+    {{ (tpl (.Files.Get ( printf "%s" $.Values.peer.core_yaml.configpath )) . ) | nindent 6 }}
+  {{ end }}
