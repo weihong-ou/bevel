@@ -38,6 +38,9 @@ orderer:
   orderer_yaml:
     # Eg. file | global_var
     initialize_from: global_var
+    # Boolean Eg. false
+    tpl: true
+    base64:
     # Eg. configpath: conf/default_orderer.yaml
     configpath: conf/default_orderer.yaml
 

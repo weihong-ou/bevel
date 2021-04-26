@@ -42,3 +42,5 @@ charts:
   commit_chaincode_job: commit_chaincode 
   approve_chaincode_job: approve_chaincode
   node: node
+  external_chaincode: external-chaincode
+  install_external_chaincode_job: install_external_chaincode

@@ -59,7 +59,10 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "labels.custom" . | nindent 2 }}
 data:
-  {{ if eq $.Values.orderer.orderer_yaml.initialize_from "file" }}
+  {{ if and (eq $.Values.orderer.orderer_yaml.initialize_from "file") (eq $.Values.orderer.orderer_yaml.tpl true) }}
   orderer.yaml: |
     {{ (tpl (.Files.Get ( printf "%s" $.Values.orderer.orderer_yaml.configpath )) . ) | nindent 6 }}
+  {{ end }}
+  {{ if and (eq $.Values.orderer.orderer_yaml.initialize_from "file") (eq $.Values.orderer.orderer_yaml.tpl false) }}
+  B64_ORDERER_YAML: "{{ $.Values.orderer.orderer_yaml.base64 }}"
   {{ end }}

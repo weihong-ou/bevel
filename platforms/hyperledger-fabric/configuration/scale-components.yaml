@@ -3,7 +3,7 @@
 #  clusters be updated in the network.yaml file that is used as an input to this playbook
 ###########################################################################################
 # To Run this playbook from this directory, use the following command (network.yaml also in this directory)
-# ansible-playbook platforms/hyperledger-fabric/configuration/restart-helm-releases.yaml --extra-vars "@path-to-network.yaml"
+# ansible-playbook platforms/hyperledger-fabric/configuration/restart-pods.yaml --extra-vars "@path-to-network.yaml"
 ############################################################################################
 # Please ensure that the ../../shared/configuration playbooks have been run using the same network.yaml
 ---
@@ -14,11 +14,11 @@
 
     ############################################################################################
     # This task restarts pods
-    - name: Restart Helm Releases for syncing Helm Chart updates
+    - name: scale components
       include_role:
-        name: "delete/helm_releases"
+        name: "scale/components"
       vars:
-        component_name: "{{ item.name | lower}}-net"   
+        component_ns: "{{ item.name | lower}}-net"   
         kubernetes: "{{ item.k8s }}"
         components: "{{ item.components }}"
       loop: "{{ network['organizations'] }}"

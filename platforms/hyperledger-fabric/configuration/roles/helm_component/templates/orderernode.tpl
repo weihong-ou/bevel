@@ -27,6 +27,10 @@ spec:
 {% if orderer.orderer_yaml is defined and orderer.orderer_yaml.initialize_from == 'file' %}
       orderer_yaml:
         initialize_from: file
+        tpl: {{ orderer.orderer_yaml.tpl }}
+{% if orderer.orderer_yaml.tpl == false %}
+        base64: {{ orderer_yaml_file | b64encode }}
+{% endif %}
 {% if orderer.orderer_yaml.configpath is defined %}
         configpath: conf/{{  orderer.name }}_{{ org_name }}_orderer.yaml
 {% endif %}

@@ -11,9 +11,6 @@ metadata:
     {{- include "labels.custom" . | nindent 2 }}
 data:
   FABRIC_LOGGING_SPEC: grpc=debug:{{ $.Values.peer.loglevel }}
-  {{ if $.Values.peer.gossipexternalendpoint }}
-  CORE_PEER_GOSSIP_EXTERNALENDPOINT: {{ $.Values.peer.gossipexternalendpoint }}
-  {{ end }}
   GODEBUG: "netdns=go"
   {{ if eq $.Values.peer.core_yaml.initialize_from "global_var" }}
   CORE_VM_ENDPOINT: unix:///host/var/run/docker.sock
@@ -36,6 +33,9 @@ data:
   CORE_PEER_MSPCONFIGPATH: /etc/hyperledger/fabric/crypto/msp
   CORE_PEER_GOSSIP_SKIPHANDSHAKE: "true"
   CORE_CHAINCODE_BUILDER: "{{ $.Values.peer.builder }}"
+  {{ if $.Values.peer.gossipexternalendpoint }}
+  CORE_PEER_GOSSIP_EXTERNALENDPOINT: {{ $.Values.peer.gossipexternalendpoint }}
+  {{ end }}
   {{ end }}
 
 ---
@@ -84,7 +84,11 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     {{- include "labels.custom" . | nindent 2 }}
 data:
-  {{ if eq $.Values.peer.core_yaml.initialize_from "file" }}
+  {{ if and (eq $.Values.peer.core_yaml.initialize_from "file") (eq $.Values.peer.core_yaml.tpl true) }}
   core.yaml: |
     {{ (tpl (.Files.Get ( printf "%s" $.Values.peer.core_yaml.configpath )) . ) | nindent 6 }}
   {{ end }}
+  {{ if and (eq $.Values.peer.core_yaml.initialize_from "file") (eq $.Values.peer.core_yaml.tpl false) }}
+  B64_CORE_YAML: "{{ $.Values.peer.core_yaml.base64 }}"
+  {{ end }}
+

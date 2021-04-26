@@ -1,0 +1,7 @@
+############################################################################################
+# This task restarts components
+- name: Restarts components
+  include_tasks: nested_main.yaml
+  loop: "{{ components }}"
+  loop_control:
+    loop_var: component

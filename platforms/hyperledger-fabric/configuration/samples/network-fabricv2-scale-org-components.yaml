@@ -1,5 +1,5 @@
 ---
-# This is a sample configuration file for Refreshing Peer Helm Releases for 2 Org's peers.
+# This is a sample configuration file for Refreshing Peer Certificates for 2 Org's peers.
 network:
   # Network level configuration specifies the attributes required for each organization
   # to join an existing network.
@@ -38,6 +38,8 @@ network:
         context: "cluster_context"
         config_file: "cluster_config"
 
-     components:
-      - manufacturer-peer0
-      - manufacturer-peer1
+      components:
+        - name: peer0
+          replicas: 0
+        - name: peer1
+          replicas: 0 

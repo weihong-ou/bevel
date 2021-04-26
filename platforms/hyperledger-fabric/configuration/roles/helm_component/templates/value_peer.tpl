@@ -36,10 +36,14 @@ spec:
 {% if peer.core_yaml is defined and peer.core_yaml.initialize_from == 'file' %}
       core_yaml:
         initialize_from: file
+        tpl: {{ peer.core_yaml.tpl }}
+{% if peer.core_yaml.tpl == false %}
+        base64: {{ core_yaml_file.stdout | b64encode }}
+{% endif %}
 {% if peer.core_yaml.configpath is defined %}
         configpath: conf/{{ peer_name }}_{{ name }}_core.yaml
 {% endif %}
-{% endif %}  
+{% endif %}
 
     storage:
       peer:

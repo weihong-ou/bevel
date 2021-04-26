@@ -51,7 +51,7 @@ spec:
           items:
             - key: genesis.block.base64
               path: genesis.block.base64
-      {{ if eq $.Values.orderer.orderer_yaml.initialize_from "file" }}
+      {{ if and (eq $.Values.orderer.orderer_yaml.initialize_from "file") (eq $.Values.orderer.orderer_yaml.tpl true) }}
       - name: {{ $.Values.orderer.name }}-orderer-yaml-config-volume
         configMap:
           name: {{ $.Values.orderer.name }}-orderer-yaml-config
@@ -218,7 +218,12 @@ spec:
         args:
         - |-
           if [ "${INITIALIZE_FROM}" == "file" ]; then
-            cp /ordereryaml/orderer.yaml /etc/hyperledger/fabric/orderer.yaml;
+            if [ "${TPL}" == "true" ]; then
+              cp /ordereryaml/orderer.yaml /etc/hyperledger/fabric/orderer.yaml;
+            fi
+            if [ "${TPL}" == "false" ]; then
+              echo ${B64_ORDERER_YAML} | base64 -d > /etc/hyperledger/fabric/orderer.yaml;
+            fi            
           fi
           cat /var/hyperledger/orderer/genesis/genesis.block.base64 | base64 -d > /var/hyperledger/orderer/orderer.genesis.block;
           orderer
@@ -227,16 +232,22 @@ spec:
         env:
         - name: INITIALIZE_FROM
           value: "{{ $.Values.orderer.orderer_yaml.initialize_from }}"
+        - name: TPL
+          value: "{{ $.Values.orderer.orderer_yaml.tpl }}"
         envFrom:
         - configMapRef:
             name: {{ $.Values.orderer.name }}-config
+        {{ if and (eq $.Values.orderer.orderer_yaml.initialize_from "file") (eq $.Values.orderer.orderer_yaml.tpl false) }}
+        - configMapRef:
+            name: {{ $.Values.orderer.name }}-orderer-yaml-config
+        {{ end }}
         volumeMounts:
         - name: datadir
           mountPath: /var/hyperledger/production/orderer
         - name: {{ $.Values.orderer.name }}-genesis-volume
           mountPath: /var/hyperledger/orderer/genesis
           readOnly: true
-        {{ if eq $.Values.orderer.orderer_yaml.initialize_from "file" }}
+        {{ if and (eq $.Values.orderer.orderer_yaml.initialize_from "file") (eq $.Values.orderer.orderer_yaml.tpl true) }}
         - name: {{ $.Values.orderer.name }}-orderer-yaml-config-volume
           mountPath: /ordereryaml
           readOnly: true

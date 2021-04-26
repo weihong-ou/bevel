@@ -1,9 +1,0 @@
-############################################################################################
-# This task restarts pods
-- name: Restarts pods
-  shell: |
-    export POD_NAME=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ component_name }} | grep "{{ component }}" | awk '{print $1}')
-    KUBECONFIG={{ kubernetes.config_file }} kubectl delete po -n {{ component_name }} ${POD_NAME}
-  loop: "{{ components }}"
-  loop_control:
-    loop_var: component

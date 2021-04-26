@@ -107,10 +107,21 @@
     {% for peer in peers %}
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/peers/{{peer.name}}.{{ component_name }}/tls
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/peers/{{peer.name}}.{{ component_name }}/msp
+    vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/peers/{{peer.name}}.{{ component_name }}/chaincode
     {% endfor %}
     vault delete {{ item.vault.secret_path | default('secret') }}/credentials/{{ component_name }}/ca/{{ org_name }}
     vault delete {{ item.vault.secret_path | default('secret') }}/credentials/{{ component_name }}/couchdb/{{ org_name }}
     vault delete {{ item.vault.secret_path | default('secret') }}/credentials/{{ component_name }}/git
+
+    target_path={{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/endorsers/{{ org_name }}/users;
+    for key in $(vault kv list -format=json "$target_path" | jq -r '.[]'); do
+      vault kv delete "$target_path/$key/msp"; 
+    done
+
+    target_path={{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/chaincode;
+    for key in $(vault kv list -format=json "$target_path" | jq -r '.[]'); do
+      vault kv delete "$target_path/$key"; 
+    done
   vars:
     peers: "{{ services.peers }}"
   environment:
@@ -139,6 +150,12 @@
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/{{ user.identity }}/tls
     vault delete {{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users/{{ user.identity }}/msp
     {% endfor %}
+
+    target_path={{ item.vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/users;
+    for key in $(vault kv list -format=json "$target_path" | jq -r '.[]'); do
+      vault kv delete "$target_path/$key/msp"; 
+      vault kv delete "$target_path/$key/tls"; 
+    done
   vars:
     users: "{{ item.users }}"
   environment:

@@ -24,7 +24,7 @@ metadata:
   name: {{ .Values.peer.name }}-peer-volume
   namespace: {{ .Values.metadata.namespace }}
   labels:
-    app.kubernetes.io/name: {{ .Values.peer.name }}-db-volume
+    app.kubernetes.io/name: {{ .Values.peer.name }}-peer-volume
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/instance: {{ .Release.Name }}    

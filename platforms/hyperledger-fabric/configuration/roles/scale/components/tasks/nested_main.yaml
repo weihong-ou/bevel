@@ -1,0 +1,11 @@
+############################################################################################
+# This task scale components
+- name: Scale statefulsets
+  shell: |
+    KUBECONFIG={{ kubernetes.config_file }} kubectl scale --replicas {{ component.replicas }} -n {{ component_ns }}  statefulset/{{ component.name }}
+  register: scale_output
+
+- name: Scale deployments
+  shell: |
+    KUBECONFIG={{ kubernetes.config_file }} kubectl scale --replicas {{ component.replicas }} -n {{ component_ns }}  deployment/{{ component.name }}
+  when: scale_output.stderr is defined

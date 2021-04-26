@@ -1,0 +1,79 @@
+# Check or Wait if commit-chaincode is already run for v.2.x
+- name: "Waiting for chaincode to be commited on {{ peer.name }}"
+  include_role:
+    name: "{{ playbook_dir }}/../../shared/configuration/roles/check/helm_component"
+  vars:
+    component_type: "Job"
+    namespace: "{{ org_ns }}"
+    component_name: "commitchaincode-{{ peer.chaincode.name }}-{{ peer.chaincode.version }}"
+  when: 
+    - peer.chaincode is defined and '2.' in network.version
+
+# Check if external-chaincode-server is already running
+- name: Check external-chaincode-server exists
+  k8s_info:
+    kind: Pod
+    namespace: "{{ org_ns }}"
+    name: "chaincode-{{ peer.chaincode.name }}-{{ peer.chaincode.version }}-{{ org_name }}"
+    kubeconfig: "{{ kubernetes.config_file }}"
+    context: "{{ kubernetes.context }}"
+  register: ext_chaincode_server
+
+############################################################################################
+# This task pakages and installs external chaincode 
+- name: Generate and copy the {{ chaincode_name }}-{{ org_name }}.tgz file into the Peer CLI
+  shell: |
+    export PEER_CLI=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ org_ns }} | grep "{{ peer.name }}-cli" | awk '{print $1}')
+    KUBECONFIG={{ kubernetes.config_file }} kubectl exec -it -n {{ org_ns }} ${PEER_CLI} -- peer lifecycle chaincode queryinstalled | grep {{ chaincode_name }}_{{ chaincode_version }} | awk '{print $3}' | sed 's/, / /g'  > ./build/ccid.txt
+  when: ext_chaincode_server.resources|length == 0
+
+############################################################################################
+# This task fetches the chaincode ID
+- name: Fetch the ccid
+  command: cat ./build/ccid.txt
+  register: ccid
+  when: ext_chaincode_server.resources|length == 0
+
+############################################################################################
+# This task creates value files for chaincode server
+- name: Create Value files for chaincode server
+  include_role:
+    name: helm_component
+  vars:
+    name: "{{ item.name | lower }}"
+    type: "external_chaincode"
+    component_name: "chaincode-{{ peer.chaincode.name }}-{{ peer.chaincode.version }}-{{ org_name }}"
+    chaincode_image: "{{ peer.chaincode.image }}"
+    peer_name: "{{ peer.name }}"
+    chaincode_ns: "{{ org_ns }}"
+    provider: "{{ item.cloud_provider }}" 
+    alpine_image: "{{ docker_url }}/alpine-utils:1.0"
+  when: ext_chaincode_server.resources|length == 0
+
+#Git Push : Pushes the above generated files to git directory 
+- name: Git Push
+  include_role: 
+    name: "{{ playbook_dir }}/../../shared/configuration/roles/git_push"
+  vars:
+    GIT_DIR: "{{ playbook_dir }}/../../../"
+    GIT_REPO: "{{ item.gitops.git_push_url }}"
+    GIT_USERNAME: "{{ item.gitops.username }}"
+    GIT_EMAIL: "{{ item.gitops.email }}"
+    GIT_PASSWORD: "{{ item.gitops.password }}"
+    GIT_BRANCH: "{{ item.gitops.branch }}"
+    GIT_RESET_PATH: "platforms/hyperledger-fabric/configuration"
+    msg: "[ci skip] Pushing chaincode server files"
+  when: ext_chaincode_server.resources|length == 0
+
+# Wait for chaincode server pod to be in the state of running
+- name: "Waiting for chaincode server pod chaincode-{{ peer.chaincode.name }}-{{ peer.chaincode.version }}-{{ org_name }} in {{ item.name | lower }}-net"
+  include_role:
+    name: "{{ playbook_dir }}/../../shared/configuration/roles/check/helm_component"
+  vars:
+    component_type: "Pod"
+    namespace: "{{ item.name | lower }}-net"
+    component_name: "chaincode-{{ peer.chaincode.name }}-{{ peer.chaincode.version }}-{{ org_name }}"
+    kubernetes: "{{ item.k8s }}"
+    label_selectors:
+      - app = {{ component_name }}
+  when: ext_chaincode_server.resources|length == 0

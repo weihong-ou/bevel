@@ -193,8 +193,14 @@ spec:
         args:
         - |-
           if [ "${INITIALIZE_FROM}" == "file" ]; then
-            cp /coreyaml/core.yaml /etc/hyperledger/fabric/core.yaml;
+            if [ "${TPL}" == "true" ]; then
+              cp /coreyaml/core.yaml /etc/hyperledger/fabric/core.yaml;
+            fi
+            if [ "${TPL}" == "false" ]; then
+              echo ${B64_CORE_YAML} | base64 -d > /etc/hyperledger/fabric/core.yaml;
+            fi
           fi
+
           cp /etc/hyperledger/fabric/NodeOUconfig/mspconfig  /etc/hyperledger/fabric/crypto/msp/config.yaml;
           export CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=`cat /etc/hyperledger/fabric/crypto/user_cred`;
           peer node start
@@ -206,9 +212,15 @@ spec:
         env:
         - name: INITIALIZE_FROM
           value: "{{ $.Values.peer.core_yaml.initialize_from }}"
+        - name: TPL
+          value: "{{ $.Values.peer.core_yaml.tpl }}"
         envFrom:
         - configMapRef:
             name: {{ $.Values.peer.name }}-config
+        {{ if and (eq $.Values.peer.core_yaml.initialize_from "file") (eq $.Values.peer.core_yaml.tpl false) }}
+        - configMapRef:
+            name: {{ $.Values.peer.name }}-core-yaml-config
+        {{ end }}
         volumeMounts:
         - name: datadir
           mountPath: /var/hyperledger/production
@@ -219,7 +231,7 @@ spec:
         - name: {{ $.Values.peer.name }}-msp-config-volume
           mountPath: /etc/hyperledger/fabric/NodeOUconfig
           readOnly: true
-        {{ if eq $.Values.peer.core_yaml.initialize_from "file"  }}
+        {{ if and (eq $.Values.peer.core_yaml.initialize_from "file") (eq $.Values.peer.core_yaml.tpl true) }}
         - name: {{ $.Values.peer.name }}-core-yaml-config-volume
           mountPath: /coreyaml
           readOnly: true
@@ -245,7 +257,7 @@ spec:
           items:
             - key: mspconfig
               path: mspconfig
-      {{ if eq $.Values.peer.core_yaml.initialize_from "file"  }}
+      {{ if and (eq $.Values.peer.core_yaml.initialize_from "file") (eq $.Values.peer.core_yaml.tpl true) }}
       - name: {{ $.Values.peer.name }}-core-yaml-config-volume
         configMap:
           name: {{ $.Values.peer.name }}-core-yaml-config

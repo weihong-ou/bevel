@@ -1,0 +1,11 @@
+# This task creates certs for peer for external chaincode servers
+- name: Creates certs for peer for external chaincode servers
+  include_tasks: nested_main.yaml
+  loop: "{{ services.peers }}"
+  loop_control:
+    loop_var: peer
+  when: 
+    - peer.chaincode is defined
+    - peer.chaincode.external_chaincode is defined
+    - peer.chaincode.external_chaincode == true  
+    - peer.chaincode.tls_disabled == false

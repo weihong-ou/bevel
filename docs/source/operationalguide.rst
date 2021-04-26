@@ -41,7 +41,6 @@ Fabric operations
     operations/custom_core_yaml_peer.md
     operations/custom_orderer_yaml.md
     operations/restart-components.md
-    operations/restart-hr.md
     
 Corda operations
 -----------------------
