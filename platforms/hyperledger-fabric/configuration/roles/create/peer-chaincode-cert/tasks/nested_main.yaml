@@ -3,7 +3,7 @@
 #############################################################################################
 
 ############################################################################################
-# Copy generate-user-crypto script from scrips directory
+# Copy generate-crypto-peer-chaincode.sh script from scrips directory
 - name: Copy generate-crypto-peer-chaincode.sh to destination directory
   copy:
     src: "{{ playbook_dir }}/../scripts/{{ files }}"
@@ -17,8 +17,8 @@
   when: setup_user_env is not defined or setup_user_env == true
 
 ############################################################################################
-# This task changes the permission for msp
-- name: Changing the permission of msp files
+# This task changes the permission 
+- name: Changing the permissions
   file:  
     path: ./build/{{ files }} 
     mode: '0775'
@@ -30,7 +30,7 @@
 
 ############################################################################################
 # This task copies generate-crypto-peer-chaincode.sh file using the CA Tools Pod 
-- name: Copy generate_crypto.sh file using the CA Tools 
+- name: Copy generate-crypto-peer-chaincode.sh file using the CA Tools 
   shell: |
     export CA_TOOL_CLI=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ component_name }} | grep "ca-tools" | awk '{print $1}')
     KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/generate-crypto-peer-chaincode.sh {{ component_name }}/${CA_TOOL_CLI}:/root/ca-tools/{{org_name|lower}}/generate-crypto-peer-chaincode.sh  
@@ -44,8 +44,9 @@
     KUBECONFIG={{ kubernetes.config_file }} kubectl exec -n {{ component_name }} ${CA_TOOL_CLI} -- /root/ca-tools/{{org_name|lower}}/./generate-crypto-peer-chaincode.sh {{component_name}} {{org_name|lower}} {{peer.name}}-chaincode app {{org_name}} "{{subject}}"
     KUBECONFIG={{ kubernetes.config_file }} kubectl cp {{ component_name }}/${CA_TOOL_CLI}:crypto-config ./build/crypto-config
 
-# Copy user certificates to vault
-- name: Copy user certificates to vault
+############################################################################################
+# Copy certificates to vault
+- name: Copy certificates to vault
   shell: |
     vault write {{ vault.secret_path | default('secret') }}/crypto/peerOrganizations/{{ component_name }}/peers/{{ peer.name }}.{{ component_name }}/chaincode ca.crt="$(cat ./build/crypto-config/peerOrganizations/{{ component_name }}/users/{{peer.name}}-chaincode@{{ component_name }}/tls/ca.crt)" client.crt="$(cat ./build/crypto-config/peerOrganizations/{{ component_name }}/users/{{peer.name}}-chaincode@{{ component_name }}/tls/client.crt)" client.key="$(cat ./build/crypto-config/peerOrganizations/{{ component_name }}/users/{{peer.name}}-chaincode@{{ component_name }}/tls/client.key)"
   environment:

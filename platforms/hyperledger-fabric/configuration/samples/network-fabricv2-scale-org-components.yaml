@@ -1,5 +1,5 @@
 ---
-# This is a sample configuration file for Refreshing Peer Certificates for 2 Org's peers.
+# This is a sample configuration file for scaling org's k8s components
 network:
   # Network level configuration specifies the attributes required for each organization
   # to join an existing network.
@@ -11,7 +11,7 @@ network:
   # then these services should be listed in this section as well.
   organizations:
 
-    # Specification for the 2nd organization. Each organization maps to a VPC and a separate k8s cluster
+    # Specification for the 1st organization. Each organization maps to a VPC and a separate k8s cluster
     - organization:
       name: manufacturer
       country: CH

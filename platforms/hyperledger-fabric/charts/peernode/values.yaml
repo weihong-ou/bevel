@@ -69,11 +69,13 @@ peer:
         organizationalunitidentifier: admin
       ordererOUidentifier:
         organizationalunitidentifier: orderer
+  # This section defines how to initialize core.yaml
   core_yaml:
     # Eg. file | global_var
     initialize_from: global_var
     # Boolean Eg. false
     tpl: true
+    # Base64 encoded value for core.yaml
     base64:
     # Eg. configpath: conf/default_core.yaml
     configpath: conf/default_core.yaml

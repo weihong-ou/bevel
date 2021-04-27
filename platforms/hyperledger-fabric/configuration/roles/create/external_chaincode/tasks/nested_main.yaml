@@ -9,6 +9,7 @@
   when: 
     - peer.chaincode is defined and '2.' in network.version
 
+############################################################################################
 # Check if external-chaincode-server is already running
 - name: Check external-chaincode-server exists
   k8s_info:
@@ -20,8 +21,8 @@
   register: ext_chaincode_server
 
 ############################################################################################
-# This task pakages and installs external chaincode 
-- name: Generate and copy the {{ chaincode_name }}-{{ org_name }}.tgz file into the Peer CLI
+# This task packages and installs external chaincode 
+- name: Fetch the ccid from the Peer CLI
   shell: |
     export PEER_CLI=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ org_ns }} | grep "{{ peer.name }}-cli" | awk '{print $1}')
     KUBECONFIG={{ kubernetes.config_file }} kubectl exec -it -n {{ org_ns }} ${PEER_CLI} -- peer lifecycle chaincode queryinstalled | grep {{ chaincode_name }}_{{ chaincode_version }} | awk '{print $3}' | sed 's/, / /g'  > ./build/ccid.txt
@@ -29,7 +30,7 @@
 
 ############################################################################################
 # This task fetches the chaincode ID
-- name: Fetch the ccid
+- name: Fetch the ccid to var
   command: cat ./build/ccid.txt
   register: ccid
   when: ext_chaincode_server.resources|length == 0
@@ -50,7 +51,8 @@
     alpine_image: "{{ docker_url }}/alpine-utils:1.0"
   when: ext_chaincode_server.resources|length == 0
 
-#Git Push : Pushes the above generated files to git directory 
+############################################################################################
+# Git Push : Pushes the above generated files to git directory 
 - name: Git Push
   include_role: 
     name: "{{ playbook_dir }}/../../shared/configuration/roles/git_push"
@@ -65,6 +67,7 @@
     msg: "[ci skip] Pushing chaincode server files"
   when: ext_chaincode_server.resources|length == 0
 
+############################################################################################
 # Wait for chaincode server pod to be in the state of running
 - name: "Waiting for chaincode server pod chaincode-{{ peer.chaincode.name }}-{{ peer.chaincode.version }}-{{ org_name }} in {{ item.name | lower }}-net"
   include_role:

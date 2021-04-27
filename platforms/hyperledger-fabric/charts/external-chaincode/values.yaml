@@ -3,8 +3,8 @@ metadata:
   #Eg. namespace: org1-example-com
   namespace: default
   images:
-    #Provide the valid image name and version for fabric couchdb
-    #Eg. couchdb: hyperledger/fabric-couchdb:0.4.14
+    #Provide the valid image name and version for chaincode server
+    #Eg. <DOCKER_USERNAME>/marbles:latest
     external_chaincode: 
   #Provide the custom labels  
   #NOTE: Provide labels other than name, release name , release service, chart version , chart name, run
@@ -14,11 +14,17 @@ metadata:
   labels:
 
 chaincode:
+  # Organisation name eg. supplier
   org:
+  # Chaincode name eg. marbles
   name:
+  # Chaincode version eg. 1
   version:
+  # Chaincode ID generated after chaincode is installed eg. marbles:e45t6jtkwefweti34itjrefwe
   ccid:
+  # Path in the chaincode server container where the crypto needs to be mounted eg. /crypto
   crypto_mount_path:
+  # if tls is disabled or not | BOOLEAN | eg. true
   tls_disabled:
 
 vault:

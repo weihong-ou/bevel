@@ -1,5 +1,6 @@
-# Check if install-chaincode is already run
-- name: "Checking for the install chaincode job is already done on {{ peer.name }}"
+###########################################################################################
+# Check if install-ext-chaincode is already running
+- name: "Checking for the install ext chaincode job is already done"
   include_role:
     name: "{{ playbook_dir }}/../../shared/configuration/roles/check/helm_component"
   vars:
@@ -24,7 +25,8 @@
     - install_chaincode.resources|length == 0
     - peer.chaincode.buildpack_path is defined
 
-# Nested task for chanincode installation
+###########################################################################################
+# Task for chanincode installation
 - name: "Create value file for chaincode installation"
   include_role:
     name: helm_component
@@ -38,7 +40,8 @@
     alpine_image: "{{ docker_url }}/alpine-utils:1.0"
   when: install_chaincode.resources|length == 0
 
-#Git Push : Pushes the above generated files to git directory 
+###########################################################################################
+# Git Push : Pushes the above generated files to git directory 
 - name: Git Push
   include_role: 
     name: "{{ playbook_dir }}/../../shared/configuration/roles/git_push"

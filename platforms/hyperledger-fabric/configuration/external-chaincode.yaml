@@ -1,9 +1,9 @@
-# This playbook deploys a DLT network on existing Kubernetes clusters
-# The Kubernetes clusters should already be created and the infomation to connect to the
-#  clusters be updated in the network.yaml file that is used as an input to this playbook
+# This playbook executes required tasks to instal, approve, commit and deploy an external chaincode 
+# on existing Kubernetes clusters. The Kubernetes clusters should already be created and the infomation 
+# to connect to the clusters be updated in the network.yaml file that is used as an input to this playbook
 ###########################################################################################
 # To Run this playbook from this directory, use the following command (network.yaml also in this directory)
-#  ansible-playbook deploy-network.yaml -e "@./network.yaml"
+#  ansible-playbook platforms/hyperledger-fabric/configuration/external-chaincode.yaml -e "@./network.yaml"
 ############################################################################################
 # Please ensure that the ../../shared/configuration playbooks have been run using the same network.yaml
 ---
@@ -12,6 +12,7 @@
   gather_facts: no
   tasks:
 
+    ############################################################################################
     # Check if CA server is available
     - name: "Waiting for the CA server to be created in {{ item.name | lower }}-net"
       include_role:
@@ -29,6 +30,7 @@
         ca: "{{ item.services.ca }}"
       loop: "{{ network['organizations'] }}"
 
+    ############################################################################################
     # Check if CA CLI is available
     - name: "Waiting for the CA CLI to be created in {{ item.name | lower }}-net"
       include_role:
@@ -47,9 +49,8 @@
       loop: "{{ network['organizations'] }}"
 
     ############################################################################################
-    # This task generates the crypto material by executing the generate-user-crypto.sh script file
-    # present in the Organization's CA Tools CLI
-    - name: Generate crypto material for user
+    # This task generates the crypto material by executing the generate-crypto-peer-chaincode.sh script 
+    - name: Generate crypto material for peer to interact with external chincode servers
       include_role:
         name: "create/peer-chaincode-cert"
       vars:
@@ -67,9 +68,8 @@
       when: item.type == 'peer'
 
     ############################################################################################
-    # This task generates the crypto material by executing the generate-user-crypto.sh script file
-    # present in the Organization's CA Tools CLI
-    - name: Generate crypto material for user
+    # This task generates the crypto material by executing the generate-crypto-chaincode-server.sh script
+    - name: Generate crypto material for external chaincode servers
       include_role:
         name: "create/chaincode-cert"
       vars:
@@ -86,6 +86,8 @@
       loop: "{{ network['organizations'] }}"
       when: item.type == 'peer'
 
+    ############################################################################################
+    # This task installs the external chaincode on the desired peers
     - name: Install external chaincode
       include_role:
         name: "create/chaincode/install-external"
@@ -108,6 +110,8 @@
       loop: "{{ network['organizations'] }}"
       when: item.type == 'peer' and item.org_status == 'new'
 
+    ############################################################################################
+    # This task approves desired installed chaincode on the peers
     - name: "Approve chaincode"
       include_role:
         name: "create/chaincode/approve"
@@ -117,6 +121,8 @@
       loop: "{{ network['channels'] }}"
       when: participants is defined and '2.' in network.version
 
+    ############################################################################################
+    # This task commits the desired approved chaincode
     - name: Commit chaincode
       include_role:
         name: "create/chaincode/commit"
@@ -127,6 +133,8 @@
       loop: "{{ network['channels'] }}"
       when: add_new_org == 'false' and '2.' in network.version
 
+    ############################################################################################
+    # This task deploys the external chaincode server for desired org
     - name: Deploy external chaincode server
       include_role:
         name: "create/external_chaincode"

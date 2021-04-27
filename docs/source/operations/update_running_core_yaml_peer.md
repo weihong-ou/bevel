@@ -1,7 +1,7 @@
 <a name = "custom-core-yaml-peer"></a>
 # Update running core.yaml for peers using BAF
 
-To fetch the current core.yaml refer to [this guide](./fetch_core_yaml). Once the current core.yaml is available, proceed witht he desired updates and execute the below playbook:
+To fetch the current core.yaml refer to [this guide](./fetch_core_yaml). Once the current core.yaml is available, proceed with the desired updates and execute the below playbook:
 
 ```
 ansible-playbook platforms/hyperledger-fabric/configuration/update-peer-core-yaml.yaml --extra-vars "@path-to-network.yaml"
@@ -20,7 +20,13 @@ Once the customized config is ready, the absolute path for the same can be provi
 
 Refer [this guide](./fabric_networkyaml.md) for details on editing the configuration file.
 
-While modifying the configuration file(`network.yaml`), the path to the custom Fabric CA Server configration, `configpath`, can be added under `network.organizations.services.peers` as follows
+While modifying the configuration file(`network.yaml`) the belwo defined can be added under `network.organizations.services.peers` as follows:
+- Where to initialize the core.yaml from `initialize_from`, i.e. global variables (`global_var`) or file (`file`)
+- Incase the aboe is `file`, specify if core.yaml contains tempalte vars or real values by a boolean flag, `tpl`, `true` for if tempalte vars exist
+- The path to the custom core.yaml configration as `configpath`, when initialize_from is `file` else the default template will be considered.
+Refer [this guide](./custom_core_yaml_peer.md) for details on editing the core.yaml file with template vars.
+
+**NOTE:** The template vars are the variables defined in the Helm value file for the corresponding Helm Chart
 
     network:
       channels:
@@ -39,11 +45,10 @@ While modifying the configuration file(`network.yaml`), the path to the custom F
               grpc:
                 port: 
               core_yaml:
-                initialize_from
+                initialize_from:
+                tpl:
                 configpath:
           ..
           ..      
-
-*_In case customization is not needed do not add this variable in your `network.yaml`_*
 
 Refer [this sample](https://github.com/hyperledger-labs/blockchain-automation-framework/tree/develop/platforms/hyperledger-fabric/configuration/samples/network-fabricv2.yaml) for details on the configuration file.

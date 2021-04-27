@@ -75,5 +75,7 @@ chaincode:
   #Provide the chaincode version to be installed
   #Eg. version: "1.0"
   version:
+  # if tls is disabled or not | BOOLEAN | eg. true
   tls_disabled:
+  # Chaincode server address eg. chaincode-marbles-1-carrier.carrier-net.svc.cluster.local:7052
   address:

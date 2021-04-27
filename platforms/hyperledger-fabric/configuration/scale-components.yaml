@@ -3,7 +3,7 @@
 #  clusters be updated in the network.yaml file that is used as an input to this playbook
 ###########################################################################################
 # To Run this playbook from this directory, use the following command (network.yaml also in this directory)
-# ansible-playbook platforms/hyperledger-fabric/configuration/restart-pods.yaml --extra-vars "@path-to-network.yaml"
+# ansible-playbook platforms/hyperledger-fabric/configuration/scale-components.yaml --extra-vars "@path-to-network.yaml"
 ############################################################################################
 # Please ensure that the ../../shared/configuration playbooks have been run using the same network.yaml
 ---
@@ -13,7 +13,7 @@
   tasks:
 
     ############################################################################################
-    # This task restarts pods
+    # This task scales k8s deployments and statefulsets
     - name: scale components
       include_role:
         name: "scale/components"

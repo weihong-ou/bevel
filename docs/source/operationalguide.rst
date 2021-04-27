@@ -40,7 +40,8 @@ Fabric operations
     operations/fetch_orderer_yaml.md
     operations/custom_core_yaml_peer.md
     operations/custom_orderer_yaml.md
-    operations/restart-components.md
+    operations/scale-components.md
+    operations/external_chaincode.md
     
 Corda operations
 -----------------------

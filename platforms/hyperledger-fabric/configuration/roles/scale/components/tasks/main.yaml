@@ -1,6 +1,6 @@
 ############################################################################################
-# This task restarts components
-- name: Restarts components
+# This task scales components
+- name: Scale components
   include_tasks: nested_main.yaml
   loop: "{{ components }}"
   loop_control:

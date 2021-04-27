@@ -1,7 +1,7 @@
 <a name = "custom-core-yaml-orderer"></a>
 # Update running orderer.yaml for orderers using BAF
 
-To fetch the current orderer.yaml refer to [this guide](./fetch_core_yaml). Once the current orderer.yaml is available, proceed witht he desired updates and execute the below playbook:
+To fetch the current orderer.yaml refer to [this guide](./fetch_orderer_yaml). Once the current orderer.yaml is available, proceed with the desired updates and execute the below playbook:
 
 ```
 ansible-playbook platforms/hyperledger-fabric/configuration/update-orderer-yaml.yaml --extra-vars "@path-to-network.yaml"
@@ -20,7 +20,13 @@ Once the customized config is ready, the absolute path for the same can be provi
 
 Refer [this guide](./fabric_networkyaml.md) for details on editing the configuration file.
 
-While modifying the configuration file(`network.yaml`), the path to the custom Fabric CA Server configration, `configpath`, can be added under `network.organizations.services.orderers` as follows
+While modifying the configuration file(`network.yaml`) the belwo defined can be added under `network.organizations.services.orderers` as follows:
+- Where to initialize the orderer.yaml from `initialize_from`, i.e. global variables (`global_var`) or file (`file`)
+- Incase the aboe is `file`, specify if orderer.yaml contains tempalte vars or real values by a boolean flag, `tpl`, `true` for if tempalte vars exist
+- The path to the custom orderer.yaml configration as `configpath`, when initialize_from is `file` else the default template will be considered.
+Refer [this guide](./custom_orderer_yaml.md) for details on editing the orderer.yaml file with template vars.
+
+**NOTE:** The template vars are the variables defined in the Helm value file for the corresponding Helm Chart
 
     network:
       channels:
@@ -38,11 +44,10 @@ While modifying the configuration file(`network.yaml`), the path to the custom F
               grpc:
                 port: 
               orderer_yaml: 
-                initialize_from: 
+                initialize_from:
+                tpl: 
                 configpath:
           ..
           ..     
-
-*_In case customization is not needed do not add this variable in your `network.yaml`_*
 
 Refer [this sample](https://github.com/hyperledger-labs/blockchain-automation-framework/tree/develop/platforms/hyperledger-fabric/configuration/samples/network-fabricv2.yaml) for details on the configuration file.
