@@ -39,5 +39,6 @@ spec:
     chaincode:
       name: {{ component_chaincode.name | lower | e }}
       version: {{ component_chaincode.version }}
+      sequence: {{ component_chaincode.sequence }}
       tls_disabled: {{ component_chaincode.tls_disabled }}
       address: chaincode-{{ component_chaincode.name | lower | e }}-{{ component_chaincode.version }}-{{ name | lower | e }}.{{ namespace }}.svc.cluster.local:7052

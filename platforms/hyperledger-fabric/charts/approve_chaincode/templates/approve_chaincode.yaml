@@ -155,7 +155,7 @@ spec:
           echo "Package Id Extracted ${PACKAGE_ID}"
           echo  "chaincode collection config path: ${COLLECTIONS_CONFIG}" 
 
-          APPROVE_CMD="peer lifecycle chaincode approveformyorg -o ${ORDERER_URL} --tls ${CORE_PEER_TLS_ENABLED} --cafile ${ORDERER_CA} --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} --version ${CHAINCODE_VERSION} --package-id ${PACKAGE_ID} --sequence {{ $.Values.chaincode.sequence }} --init-required"
+          APPROVE_CMD="peer lifecycle chaincode approveformyorg -o ${ORDERER_URL} --tls ${CORE_PEER_TLS_ENABLED} --cafile ${ORDERER_CA} --channelID ${CHANNEL_NAME} --name ${CHAINCODE_NAME} --version ${CHAINCODE_VERSION} --package-id ${PACKAGE_ID} --sequence ${CHAINCODE_SEQUENCE} --init-required"
           echo "Entering if loop"
           if [ -n "${COLLECTIONS_CONFIG}" ]
           then
@@ -216,6 +216,8 @@ spec:
           value: "{{ $.Values.chaincode.name }}"
         - name: CHAINCODE_VERSION
           value: "{{ $.Values.chaincode.version }}"
+        - name: CHAINCODE_SEQUENCE
+          value: "{{ $.Values.chaincode.sequence }}"
         - name: CORE_CHAINCODE_BUILDER
           value: "{{ $.Values.chaincode.builder }}"
         - name: CHANNEL_NAME

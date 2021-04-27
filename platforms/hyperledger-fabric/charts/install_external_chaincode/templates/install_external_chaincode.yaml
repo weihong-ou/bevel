@@ -216,6 +216,8 @@ spec:
           value: "{{ $.Values.chaincode.maindirectory }}"
         - name: CHAINCODE_VERSION
           value: "{{ $.Values.chaincode.version }}"
+        - name: CHAINCODE_SEQUENCE
+          value: "{{ $.Values.chaincode.sequence }}"
         - name: CORE_CHAINCODE_BUILDER
           value: "{{ $.Values.chaincode.builder }}"
         - name: NETWORK_VERSION
