@@ -16,7 +16,7 @@
   environment:
     VAULT_ADDR: "{{ vault.url }}"
     VAULT_TOKEN: "{{ vault.root_token }}"
-  when: (vault_msp_result.failed == True and network.env.proxy == 'none' ) or or (refresh_cert is defined and refresh_cert == true)
+  when: (vault_msp_result.failed == True and network.env.proxy == 'none' ) or (refresh_cert is defined and refresh_cert == true)
 
 # This task create the directories if it is not present 
 - name: Create the peer certificate directory if it does not exist

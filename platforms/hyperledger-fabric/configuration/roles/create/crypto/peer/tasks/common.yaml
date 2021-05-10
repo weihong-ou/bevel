@@ -29,6 +29,7 @@
   shell: |
     export CA_TOOL_CLI=$(KUBECONFIG={{ kubernetes.config_file }} kubectl get po -n {{ component_name }} | grep "ca-tools" | awk '{print $1}')
     KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/generate-crypto-{{ org_name|lower }}.sh {{ component_name }}/${CA_TOOL_CLI}:/root/ca-tools/{{org_name|lower}}/generate-crypto.sh
+    KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/generate-user-crypto.sh {{ component_name }}/${CA_TOOL_CLI}:/root/ca-tools/{{org_name|lower}}/generate-user-crypto.sh
     KUBECONFIG={{ kubernetes.config_file }} kubectl cp ./build/crypto-config/{{component_type}}Organizations/{{ component_name }}/ca/ca.{{ component_name }}-cert.pem {{ component_name }}/${CA_TOOL_CLI}:crypto-config/{{component_type}}Organizations/{{ component_name }}/ca/
   when: vault_msp_result.failed or ( add_peer is defined and add_peer | bool == True ) or vault_admin_result.failed or vault_user_result.failed or (refresh_cert is defined and refresh_cert == true)
 
