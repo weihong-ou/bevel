@@ -24,7 +24,7 @@ RUN apt-get update -y && \
 
 RUN pip3 install ansible && \
     pip3 install jmespath && \
-    pip3 install openshift==0.10.1 && \
+    pip3 install openshift==0.11.0 && \
     pip3 install kubernetes
 
 RUN rm /etc/apt/apt.conf.d/docker-clean
