@@ -74,4 +74,4 @@ spec:
       external_url_suffix: {{ item.external_url_suffix }}
 
     genesis: |-
-{{ genesis | indent(width=6, indentfirst=True) }}
+{{ genesis | indent(width=6, first=True) }}
