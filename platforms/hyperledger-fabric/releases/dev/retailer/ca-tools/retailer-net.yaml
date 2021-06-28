@@ -1,0 +1,28 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: retailer-net-ca-tools
+  namespace: retailer-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: retailer-net-ca-tools
+  chart:
+    git: https://github.com/weihong-ou/blockchain-automation-framework.git
+    ref: mvp1.0
+    path: platforms/hyperledger-fabric/charts/catools
+  values:
+    metadata:
+      namespace: retailer-net
+      name: ca-tools
+
+    replicaCount: 1
+
+    image:
+      repository: hyperledger/fabric-ca-tools
+      tag: 1.2.1
+      pullPolicy: IfNotPresent
+      
+    storage:
+      storageclassname: retailersc
+      storagesize: 512Mi
